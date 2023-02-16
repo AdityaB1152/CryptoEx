@@ -1,0 +1,22 @@
+.overview-blocks{
+    height: 100px;
+    width: 100px;
+    background-color: white;
+}
+
+.main{
+    overflow: hidden;
+}
+
+
+
+.card-value{
+    font-size: 34px;
+    margin-left: 70px;
+    font-weight: bold;
+    color: black;
+}
+.card-heading{
+    margin-left: 78px;
+    margin-top: 25px;
+}
