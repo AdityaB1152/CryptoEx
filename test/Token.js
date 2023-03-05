@@ -14,39 +14,40 @@ describe('Token' ,() =>{
         //Fetching Token from Blockchain
         beforeEach(async ()=>{
             const Token = await ethers.getContractFactory('Token')
-           token = await Token.deploy()
+           token = await Token.deploy('mEth','mEth',1000000)
 
             accounts = await ethers.getSigners()
             deployer = accounts[0]
             receiver = accounts[1]
         })
     
-    it('has a name' , async () =>{
-
-        const name = await token.name();
-        expect(name).to.equal('mEth')
-
-    })
-    it('has correct symbol' , async () =>{
-
-        const symbol = await token.symbol();
-        expect(symbol).to.equal('mEth')
-
-    })
-
-    it('has correct decimal' , async () =>{
-
-        const decimals = await token.decimals();
-        expect(decimals).to.equal('18')
-
-    })
-
-    it('has correct total supply' , async () =>{
-
-        const value = tokens('1000000')
-        expect(await token.totalSupply()).to.equal(value)
-
-    })
+        describe('Deployment', () => {
+            const name = 'mEth'
+            const symbol = 'mEth'
+            const decimals = '18'
+            const totalSupply = tokens('1000000')
+        
+            it('has correct name', async () => {
+              expect(await token.name()).to.equal(name)
+            })
+        
+            it('has correct symbol', async () => {
+              expect(await token.symbol()).to.equal(symbol)
+            })
+        
+            it('has correct decimals', async () => {
+              expect(await token.decimals()).to.equal(decimals)
+            })
+        
+            it('has correct total supply', async () => {
+              expect(await token.totalSupply()).to.equal(totalSupply)
+            })
+        
+            it('assigns total supply to deployer', async () => {
+              expect(await token.balanceOf(deployer.address)).to.equal(totalSupply)
+            })
+        
+          })
 
     describe('Sending Token', () =>{
 
