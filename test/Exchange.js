@@ -18,11 +18,13 @@ describe('Exchange',() =>{
         const Exchange = await ethers.getContractFactory('Exchange')
         const Token = await ethers.getContractFactory('Token')
         token1 = await Token.deploy('mEth','mEth',1000000)
+        token2 = await Token.deploy('mBtc','mBtc',1000000)
         
         accounts = await ethers.getSigners()
         deployer = accounts[0];
         feeAccount = accounts[1];
         user1 = accounts[2];
+        user2 = accounts[3];
 
         let transaction = await token1.connect(deployer).transfer(user1.address , tokens(100))
         await transaction.wait()
@@ -121,5 +123,41 @@ describe('Exchange',() =>{
               })
         })
        
+      })
+
+      describe('Making Orders' , async () =>{
+
+        let transaction
+        let amount = tokens(10)
+        describe('Success',async ()=>{
+            beforeEach(async ()=>{
+                    // Approve Token
+            transaction = await token1.connect(user1).approve(exchange.address, amount)
+            result = await transaction.wait()
+            // Deposit token
+            transaction = await exchange.connect(user1).depositToken(token1.address, amount)
+            result = await transaction.wait()
+            //Make Order
+
+            transaction = await exchange.connect(user1).makeOrder(token2.address , tokens(1) , token1.address , tokens(1));
+            result = await transaction.wait()
+            })
+
+            it('tracks newly created orders' , async ()=>{
+                
+                expect(await exchange.orderNum()).to.equal(1);
+            })
+
+        })
+
+        describe('Failure',async ()=>{
+            
+        })
+      })
+
+      describe('Filling Orders' , async () =>{
+        transaction = await exchange.connect(user2).fillOrder('1')
+        result = await transaction.wait()
+
       })
 })
