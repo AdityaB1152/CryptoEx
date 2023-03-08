@@ -1,10 +1,13 @@
 import { BusinessCenter, Leaderboard, PaymentRounded, Payments } from '@mui/icons-material'
 import { Card, CardActionArea, CardContent, Grid, Paper } from '@mui/material'
 import './Home.css'
-import ProfileImage from '../../Assets/userProfile.jpg' 
+import ProfileImage from '../../Assets/avatar.png' 
 import React from 'react'
+import Navbar from '../../Components/Navbar'
 function Home() {
   return (
+    <>
+    <Navbar/>
     <div className='main'>
 
       <h1 style={{color:'white'}}>Welcome Back Sample User</h1>
@@ -70,7 +73,7 @@ function Home() {
      <div >
        <Paper sx={{'borderRadius':'12px','width':'300px',height:'60vh',background:'white'}}>
 
-        <img src={ProfileImage} style={{height:'140px',width:'140px','borderRadius':'50%',marginLeft:'78px'}} alt='Avatar'/>
+        <img src={ProfileImage} style={{height:'140px',width:'140px','borderRadius':'50%',marginLeft:'78px',marginTop:'20px'}} alt='Avatar'/>
         <h3 style={{'textAlign':'center',color:'black'}}>Total Balance</h3>
         <h2 style={{'textAlign':'center',color:'black',fontSize:'24px'}}>$3,456</h2>
         
@@ -83,6 +86,7 @@ function Home() {
     </gridCards> 
 
     </div>
+    </>
   )
 }
 

@@ -11,7 +11,7 @@ root.render(
   <div className='index'>
   
   <BrowserRouter>
-  <Navbar/>
+  
     <App />
     
   </BrowserRouter>
