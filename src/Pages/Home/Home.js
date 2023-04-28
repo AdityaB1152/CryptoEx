@@ -1,16 +1,65 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { BusinessCenter, Leaderboard, PaymentRounded, Payments } from '@mui/icons-material'
 import { Card, CardActionArea, CardContent, Grid, Paper } from '@mui/material'
 import './Home.css'
 import ProfileImage from '../../Assets/avatar.png' 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { auth , db} from '../firebaseConfig'
 import Navbar from '../../Components/Navbar'
+import FinancialChart from '../../Components/FinancialChart'
+import { collection, doc, getDocs, query, where } from 'firebase/firestore'
+
+
+
+
+
+
+
 function Home() {
+
+  /*
+    1.Retrive Information from the blockchain and database
+    2.Parse and display relevant information
+    3.Display Price Chart
+  */
+
+  let accounts;
+  const [user , setUser] = useState({
+    fname:"",
+    lname: "",
+    email : "",
+    walletId: "",
+  });
+
+  const loadBlockchainData = async () => {
+    accounts = await window.ethereum.request({
+      method: "eth_requestAccounts"
+    });
+
+    
+    const userRef = collection(db , "Users")
+    const userQ = query(userRef , where("walletId" , "==" , accounts[0]));
+    const userQSnapshot = await getDocs(userQ);
+    userQSnapshot.forEach((doc)=>{
+     
+      setUser(doc.data());
+
+     
+    })
+  }
+
+  useEffect( ()=>{
+
+    loadBlockchainData();
+    
+  });
+
   return (
     <>
     <Navbar/>
     <div className='main'>
 
-      <h1 style={{color:'white'}}>Welcome Back Sample User</h1>
+      <h1 style={{color:'white'}}>Welcome Back {user.fname + " " + user.lname}</h1>
     {/*
     Three cards on Overview page to display Assets,Deposits and APY
     */}
@@ -86,6 +135,9 @@ function Home() {
     </gridCards> 
 
     </div>
+
+ 
+    
     </>
   )
 }

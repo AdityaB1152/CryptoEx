@@ -3,7 +3,11 @@ import { ThemeProvider } from '@emotion/react'
 import { Copyright, LockClockOutlined, LockOutlined } from '@mui/icons-material'
 import { Avatar, Box, Button, Checkbox, Container, createTheme, CssBaseline, FormControlLabel, Grid, TextField, Typography } from '@mui/material'
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { doc, getFirestore, setDoc } from 'firebase/firestore'
+import {createUserWithEmailAndPassword, getAuth } from 'firebase/auth'
+import { useState } from 'react'
+import {app } from '../firebaseConfig'
+import { Link , useNavigate} from 'react-router-dom'
 import Metamask from '../../Assets/metamask.webp'
 
 function Copy(props) {
@@ -22,14 +26,56 @@ function Copy(props) {
 const theme = createTheme();
 
 export default function Register() {
+
+  const navigate = useNavigate();
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  const [walletStatus, setWalletStatus] = useState({
+    status:true,
+    walletId : ""
+  });
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const user = {
+      email : data.get('email'),
+      fname : data.get('firstName'),
+      lname : data.get('lastName'),
+      walletId : walletStatus.walletId[0]
+    }
+    console.log(user);
+   createUserWithEmailAndPassword(auth , user.email , data.get('password'))
+   .then(async (cred) =>{
+      console.log("User" , cred.user.uid);
+      
+      await setDoc(doc(db , 'Users' , cred.user.uid) , user)
+      .then(()=>{
+        navigate('/');
+      }).catch((error) => {
+        console.log(error);
+      })
+
+   }).catch ( (error) => {
+      console.log(error);
+   });
   };
+
+  const loadBlockchainData =async () => {
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts"
+    });
+
+    console.log(accounts);
+
+    setWalletStatus({
+      status:false,
+      walletId : accounts
+    })
+
+    console.log("Wallet Status",walletStatus);
+  }
 
 
   return (
@@ -98,7 +144,7 @@ export default function Register() {
             
             </Grid>
             <Button
-              type="submit"
+              onClick = {loadBlockchainData}
               fullWidth
               variant="contained"
               sx={{ mt: 2, mb: 1 }}
@@ -107,11 +153,12 @@ export default function Register() {
               Authenticate with Metamask
             </Button>
             <Button
-              type="submit"
+              type = 'submit'
               fullWidth
               variant="contained"
               sx={{ mt: 2, mb: 2 }}
-              disabled={true}
+              disabled={walletStatus.status}
+             
             >
               Sign Up
             </Button>
