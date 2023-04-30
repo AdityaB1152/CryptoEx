@@ -1,5 +1,5 @@
 import { Box, Button, FormControlLabel, Grid, InputLabel, MenuItem, Paper, Select, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Navbar from '../../Components/Navbar';
 import './Trade.css'
 import Web3 from 'web3';
@@ -9,16 +9,43 @@ function Trade() {
 
     /* 
     1.Retrive the order history
+        // Fetch Orders Map and update order book table.
     2.Make , Fill and Cancel Orders
     3.Filter the orders and show relevant content
     */
+  const [scData , setScData] = useState({
+
+  });
+
+  var token1;
+  var token2;
+  var userAddress;
+
+  var contractAddress
+  var abi;
 
 
+  useEffect(()=>{
+     
+    const web3 = new Web3(Web3.givenProvider || 'http://localhost:8545');
+    const contract = new web3.eth.Contract(abi , contractAddress );
+
+    const loadBlockchainData = (error , result) => {
+      if(!error){
 
 
-  const web3 = new Web3(window.ethereum);
-  const exchangeAddress = "";
-  // const exchangeContract = new web3.eth.Contract(ExchangeContract.abi , exchangeAddress);
+        setScData();
+      }
+    };
+
+    contract.events.ValueChanged({},loadBlockchainData);
+
+    return ( ) => {
+      contract.events.ValueChanged({},loadBlockchainData).unsubscribe();
+    };
+
+  },[]);
+  
 
 
 
@@ -27,6 +54,18 @@ const [market , setMarket] = React.useState('');
 function createData(name, calories, fat) {
   return { name, calories, fat };
 }
+
+
+// const web3 = new Web3(window.ethereum);
+//   const exchangeAddress = "";
+//   const exchangeContract = new web3.eth.Contract(abi , exchangeAddress);
+// const createOrder = async (amountGet , amountGive ) =>{
+    
+//   exchangeContract.methods.makeOrder(token1,amountGet,token2,amountGive).send({
+//     from: userAddress
+// });
+
+// }
 
 const rows = [
   createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
@@ -155,7 +194,7 @@ console.log(market);
           style={{color:'white'}}
         />
       </div>
-      <Button type="submit">Submit</Button>
+      <Button type="submit" >Submit</Button>
     </form>
 
                 </Paper>
@@ -246,6 +285,8 @@ console.log(market);
     </div>
     </>
   )
+
+  
 }
 
 
