@@ -9,3 +9,16 @@ module.exports = {
     localhost:{}
   }
 };
+
+require("@nomiclabs/hardhat-ganache");
+
+module.exports = {
+  solidity: "0.8.17",
+  networks: {
+    ganache: {
+      url: "HTTP://127.0.0.1:2008"
+     
+    },
+  },
+};
+

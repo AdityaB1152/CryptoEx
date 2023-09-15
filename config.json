@@ -1,0 +1,20 @@
+{
+    "1337": {
+      "exchange": {
+        "address": "0x89F2E397333a28760b1a19595E090Df6C40162b7"
+      },
+      "DApp": {
+        "address": "0xe728324f4aAC5aB43D53736bc67B41fBC6c9aa02"
+      },
+      "mETH": {
+        "address": "0x0e0164220cac47eBC3aC646582b9121D4153Cc90"
+      },
+      "mDAI": {
+        "address": "0x3a462D00EF89faf5CFff9c6780d6A86184714Dde"
+      },
+      "explorerURL": "#"
+    },
+    "42": {
+      "explorerURL": "https://kovan.etherscan.io/"
+    }
+  }

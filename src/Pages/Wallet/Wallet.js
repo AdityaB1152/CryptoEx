@@ -81,8 +81,8 @@ const getTokens = async () =>{
     <>
     <Navbar/>
     <div className='main'>
-      <button 
-      onClick={getTokens}>Update Wallet Info</button>
+      <Button 
+      onClick={getTokens}>Update Wallet Info </Button>
       <div style={{display:'flex',flexDirection:'row'}}>
 
 <Paper sx={{'borderRadius':'100px','width':'500px',height:'400px',background:'#cdf888',
@@ -103,7 +103,7 @@ const getTokens = async () =>{
               <img src={mBTC} style={{width:'75px' , marginLeft:'70px',marginTop:'30px'}}/><b style={{}}>mDAI</b>
                 </Paper>
 
-                <Paper sx={{'borderRadius':'100px','width':'500px',height:'400px',background:'#C1C0FE',
+                {/* <Paper sx={{'borderRadius':'100px','width':'500px',height:'400px',background:'#C1C0FE',
               marginTop:'10px',marginLeft:'30px'}}>
                 <b style={{color:'black',
                 fontFamily:'monospace',fontSize:'22px',marginLeft:'200px',marginTop:'20px'}}>Wallet</b>
@@ -114,7 +114,7 @@ const getTokens = async () =>{
                 <br/>
                 <Button style={{marginLeft:'50px',marginTop:'10px'}}>Withdraw Money</Button>
                 <Button style={{marginLeft:'50px',marginTop:'10px'}}>Deposit Money </Button>
-              </Paper>
+              </Paper> */}
               </div>
     </div>
     

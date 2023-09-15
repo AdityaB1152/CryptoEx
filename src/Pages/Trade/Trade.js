@@ -2,13 +2,14 @@ import { Box, Button, FormControlLabel, Grid, InputLabel, MenuItem, Paper, Selec
 import React, { useEffect, useState } from 'react'
 import Navbar from '../../Components/Navbar';
 import './Trade.css'
+import { ethers } from 'ethers';
 import Web3 from 'web3';
+import { create } from '@mui/material/styles/createTransitions';
 // import ExchangeContract from '../../../artifacts/contracts/Exchange.sol/Exchange.json'
 
 function Trade() {
 
     /* 
-    1.Retrive the order history
         // Fetch Orders Map and update order book table.
     2.Make , Fill and Cancel Orders
     3.Filter the orders and show relevant content
@@ -21,61 +22,104 @@ function Trade() {
   var token2;
   var userAddress;
 
+  var provider
   var contractAddress
   var abi;
 
+  const openOrders = [],filledOrders = [],cancelledOrders = [];
 
-  useEffect(()=>{
-     
-    const web3 = new Web3(Web3.givenProvider || 'http://localhost:8545');
-    const contract = new web3.eth.Contract(abi , contractAddress );
-
-    const loadBlockchainData = (error , result) => {
-      if(!error){
+  const contract = new ethers.Contract(contractAddress , abi , provider);
 
 
-        setScData();
-      }
-    };
+  const loadBlockchainData = async () => {
 
-    contract.events.ValueChanged({},loadBlockchainData);
+    const orderCount = await contract.orderCount();
+    const orderCancelled = await contract.orderCancelled();
+    const ordersFilled = await contract.ordersFilled();
+   
 
-    return ( ) => {
-      contract.events.ValueChanged({},loadBlockchainData).unsubscribe();
-    };
+    for (let i = 1; i <= orderCount; i++) {
+    if (ordersFilled[i]) {
+      const order = await contract.orders(i);
+      filledOrders.push(order);
+    }
+    }
 
-  },[]);
+    for (let i = 1; i <= orderCount; i++) {
+    if (orderCancelled[i]) {
+      const order = await contract.orders(i);
+      cancelledOrders.push(order);
+    }
+    }
+
   
+  for (let i = 1; i <= orderCount; i++) {
+
+    const order = await contract.orders(i);
+
+    if (!orderCancelled[i] && !ordersFilled[i]) {
+
+      openOrders.push(order);
+      
+    }
+  }
+
+  console.log("Open Orders:", openOrders);
 
 
 
-const [market , setMarket] = React.useState('');
+}
+
+  async function createOrder(){
+  
+      try {
+        const result = await contract.makeOrder(token1 , amount , token2 , price); 
+        console.log('response', result);
+      } catch (error) {
+        console.error('Error calling function:', error);
+      }
+    
+  }
+
+  async function fillOrder(){
+
+    try{
+      const result = await contract.fillOrder();
+      console.log(result);
+
+    } catch(error){
+      console.log(error);
+    }
+  }
+
+ 
+
+
+const [market , setMarket] = React.useState(10);
 
 function createData(name, calories, fat) {
   return { name, calories, fat };
 }
 
 
-// const web3 = new Web3(window.ethereum);
-//   const exchangeAddress = "";
-//   const exchangeContract = new web3.eth.Contract(abi , exchangeAddress);
-// const createOrder = async (amountGet , amountGive ) =>{
-    
-//   exchangeContract.methods.makeOrder(token1,amountGet,token2,amountGive).send({
-//     from: userAddress
-// });
 
-// }
 
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-];
 
-const [isBuy, setIsBuy] = useState(true); // default option is "buy"
+const rows = [];
+
+openOrders.forEach(order => {
+
+    const timestamp = order.timestamp;
+    const tokenGet = order.tokenGet;
+    const tokenGive = order.tokenGive;
+
+    rows.push(createData(timestamp , tokenGet , tokenGive));
+});
+
+
+  //------------------------------------------Buying or Selling Option Toggle---------------------------------------------------------
+
+  const [isBuy, setIsBuy] = useState(true); // default option is "buy"
   const [amount, setAmount] = useState('');
   const [price, setPrice] = useState('');
 
@@ -83,11 +127,33 @@ const [isBuy, setIsBuy] = useState(true); // default option is "buy"
     setIsBuy(!isBuy);
   };
 
+
+  // --------------------------------------------Market Selection--------------------------------------------------------
+
 const selectedMarket = (event) => {
   console.log("Target Function Triggered")
-setMarket(event.target.value) 
-console.log(market);
+  setMarket(event.target.value) 
+  console.log(market);
+
+  if(market == 10){
+    token1 = 'mEth'
+    token2 = 'mDai'
+  }
+
+  if(market == 20){
+    token1 = 'mEth'
+    token2 = 'mDai'
+  }
+  if(market == 30){
+    token1 = 'mEth'
+    token2 = 'mDai'
+  }
+  
+
+  console.log('Token 1 '+token1);
+  console.log('Token 2 '+token2);
 }
+//---------------------------------------------------------------------FRONTEND-------------------------------------------------------------
 
   return (
     <>
@@ -109,9 +175,7 @@ console.log(market);
           <MenuItem  value={10}>mETH\mDAI</MenuItem>
           <MenuItem value={20}>mBTC\mDAI</MenuItem>
           <MenuItem value={30}>mETH\mBTC</MenuItem>
-          <MenuItem value={40}>mETH</MenuItem>
-          <MenuItem value={50}>mBTC</MenuItem>
-          <MenuItem value={60}>mDAI</MenuItem>
+         
         </Select>
         <div className='trade-grid'>
           <Grid container spacing={2}>
@@ -160,21 +224,26 @@ console.log(market);
 <b style={{color:'white',
                 fontFamily:'monospace',fontSize:'16px',marginLeft:'15px'}}>New Order</b>
                
-               <form>
-      <div>
-        <label htmlFor="amount" style={{color:'white'}}>{isBuy ? 'Buy Amount' : 'Sell Amount'}</label>
+               <form style={{marginLeft:'15px'}}>
+               <br/>
+               
+      <div >
+        <label htmlFor="amount" style={{color:'white'}}>{isBuy ? 'Buy Amount' : 'Sell Amount'}</label><br/>
         <input
           id="amount"
           type="number"
+          style={{color:'black',width:'200px',height:'30px'}}
           value={amount}
           onChange={(event) => setAmount(event.target.value)}
         />
       </div>
       <div>
-        <label htmlFor="price" style={{color:'white'}}>{isBuy ? 'Buy Price' : 'Sell Price'}</label>
+        <label htmlFor="price" style={{color:'white'}}>{isBuy ? 'Buy Price' : 'Sell Price'}</label><br/>
         <input
+          
           id="price"
-          type="number"
+          style={{color:'black',width:'200px',height:'30px'}}
+          type='number'
           value={price}
           onChange={(event) => setPrice(event.target.value)}
           
@@ -194,7 +263,7 @@ console.log(market);
           style={{color:'white'}}
         />
       </div>
-      <Button type="submit" >Submit</Button>
+      <Button type="submit" onSubmit={createOrder(market,token1,token2)} >Submit</Button>
     </form>
 
                 </Paper>
@@ -288,8 +357,6 @@ console.log(market);
 
   
 }
-
-
 
 
 
